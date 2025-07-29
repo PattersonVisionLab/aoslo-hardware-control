@@ -12,7 +12,9 @@ classdef ThorlabsMotorManager < handle
                 dllPath  (1,1)  string  {isfolder} = "C:\Program Files\Thorlabs\Kinesis"
             end
 
-            loadDLLs(dllPath);
+            import ur.pattersonlab.aoslo.*;
+
+            motion.util.loadDLLs(dllPath);
 
             % Build an internal list of all connected devices
             obj.buildDeviceList();

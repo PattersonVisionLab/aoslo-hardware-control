@@ -7,7 +7,7 @@ classdef TDC001 < ur.pattersonlab.aoslo.motion.ThorlabsMotor
 
             obj@ur.pattersonlab.aoslo.motion.ThorlabsMotor(device);
 
-            obj.DeviceType = DeviceTypes.TDC001;
+            obj.DeviceType = ur.pattersonlab.aoslo.motion.DeviceTypes.TDC001;
         end
     end
 end

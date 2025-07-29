@@ -41,6 +41,8 @@ classdef KinesisForm < handle
         end
 
         function value = get.Devices(obj)
+            import ur.pattersonlab.aoslo.motion.*;
+
             if isempty(obj.Controllers)
                 value = [];
             else
@@ -65,6 +67,8 @@ classdef KinesisForm < handle
 
             import System.Windows.Forms.*
             import System.Drawing.*
+
+            import ur.pattersonlab.aoslo.motion.*;
 
             obj.Form = Form(); %#ok<CPROP>
             obj.Form.Text = 'Kinesis UI';
@@ -104,11 +108,11 @@ classdef KinesisForm < handle
 
             fprintf('Adding controls... ');
             for i = 1:numel(obj.REF_XYZ)
-                refController = DeviceTypes.getController(obj.REF_XYZ(i));
+                refController = util.DeviceTypes.getController(obj.REF_XYZ(i));
                 obj.Controllers{i} = refController;
                 obj.Layout.Controls.Add(refController, 1, i);
 
-                visController = DeviceTypes.getController(obj.VIS_XYZ(i));
+                visController = util.DeviceTypes.getController(obj.VIS_XYZ(i));
                 obj.Controllers{i+3} = visController;
                 obj.Layout.Controls.Add(visController, 2, i);
 

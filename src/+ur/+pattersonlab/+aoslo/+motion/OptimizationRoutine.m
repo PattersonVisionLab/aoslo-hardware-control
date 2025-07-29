@@ -28,27 +28,32 @@ classdef OptimizationRoutine < handle
     end
 
     properties (Hidden, Constant)
-        INTEGRATION_FRAMES = 10;
+        INTEGRATION_FRAMES = 12;
         REF_XYZ = ["83857268", "83855258", "26250117"]
         VIS_XYZ = ["83848285", "83848287", "83848308"]
     end
 
     methods
-        function obj = OptimizationRoutine(form, channel, targets, opts)
+        function obj = OptimizationRoutine(form, slo, targets, opts)
             arguments
                 form
-                channel
+                slo
                 targets {mustBeMember(targets, ["RefXY", "RefZ", "RefXYZ", "VisXY", "VisZ"])}
                 opts.SearchWindow = 0.01
                 opts.MaxIterations = 200
             end
 
             obj.Form = form;
-            obj.SloChannel = channel;
             obj.targets = targets;
 
             obj.maxIterations = opts.MaxIterations;
             obj.searchWindow = opts.SearchWindow;
+
+            if contains(targets, "Ref")
+                obj.SloChannel = slo.Channels(1);
+            else
+                obj.SloChannel = slo.Channels(2);
+            end
 
             switch targets
                 case "RefXYZ"
@@ -57,6 +62,10 @@ classdef OptimizationRoutine < handle
                     obj.TargetDevices = obj.Form.Devices(1:2);
                 case "RefZ"
                     obj.TargetDevices = obj.Form.Devices(3);
+                case "VisXY"
+                    obj.TargetDevices = obj.Form.Devices(4:5);
+                case "VisZ" 
+                    obj.TargetDevices = obj.Form.Devices(6);
             end
             if iscell(obj.TargetDevices)
                 obj.TargetDevices = horzcat(obj.TargetDevices{:})';
@@ -97,6 +106,7 @@ classdef OptimizationRoutine < handle
         end
 
         function pixelValue = getMeanPixelValue(obj)
+            pause(0.04);
             [~, mu] = obj.SloChannel.getFrameValues(obj.INTEGRATION_FRAMES);
             pixelValue = mean(mu);
         end
@@ -109,7 +119,7 @@ classdef OptimizationRoutine < handle
             opts = optimset("Display", "iter",...
                 "MaxIter", obj.maxIterations,...
                 "MaxFunEvals", obj.maxIterations,...
-                "TolX", 0.001, "TolFun", 0.01,...
+                "TolX", 0.0001, "TolFun", 0.001,...
                 "PlotFcn", @optimplotfval);
 
             [optimalPosition, fVal, exitFlag, output] = fminbnd(...
@@ -140,10 +150,10 @@ classdef OptimizationRoutine < handle
                         hold on;
                         axis equal
                         colormap('jet'); colorbar()
-                        rectangle('Position',[startPt-obj.searchWindow/2, ...
+                        rectangle('Position',[startPoint'-obj.searchWindow/2, ...
                                                 obj.searchWindow,obj.searchWindow],...
                                     'LineStyle', '--');
-                        plot(startPt(1), startPt(2), 'xk', 'LineWidth', 1, 'MarkerSize', 10);
+                        plot(startPoint(1), startPoint(2), 'xk', 'LineWidth', 1, 'MarkerSize', 10);
                         axis tight
                     case 'iter'
                         scatter( ...
@@ -151,8 +161,8 @@ classdef OptimizationRoutine < handle
                             70, obj.callHistory(end,end),'.');
                     case 'done'
                         title(sprintf('Position: %.4f %.4f', obj.bestPosition));
-                        c = clim();
-                        clim([0 c(2)]);
+                        %c = clim();
+                        %clim([0 c(2)]);
                 end
             end
         end

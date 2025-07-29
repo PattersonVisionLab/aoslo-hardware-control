@@ -13,7 +13,7 @@ classdef DeviceTypes
                 kinesisPath (1,1) string {isfolder} = "C:\Program Files\Thorlabs\Kinesis"
             end
 
-            import ur.patterson.aoslo.motion.*;
+            import ur.pattersonlab.aoslo.motion.*;
 
             switch obj
                 case DeviceTypes.KDC101
@@ -39,7 +39,7 @@ classdef DeviceTypes
             import Thorlabs.MotionControl.DeviceManagerUI.*
             import Thorlabs.MotionControl.GenericMotorCLI.*
 
-            import ur.patterson.aoslo.motion.*;
+            import ur.pattersonlab.aoslo.motion.*;
 
             switch obj
                 case DeviceTypes.TDC001
@@ -84,7 +84,7 @@ classdef DeviceTypes
         function deviceType = getDeviceType(serialNumber)
             % Get the device type based on the serial number prefix
 
-            import ur.patterson.aoslo.motion.*;
+            import ur.pattersonlab.aoslo.motion.*;
 
             serialNumber = convertStringsToChars(serialNumber);
             switch serialNumber(1:2)
@@ -100,7 +100,7 @@ classdef DeviceTypes
         end
 
         function device = getDevice(deviceNET)
-            import ur.patterson.aoslo.motion.*;
+            import ur.pattersonlab.aoslo.motion.*;
 
             deviceType = DeviceTypes.getDeviceType(char(deviceNET.SerialNo));
 
@@ -115,7 +115,7 @@ classdef DeviceTypes
         end
 
         function controller = getController(serialNumber)
-            import ur.patterson.aoslo.motion.*;
+            import ur.pattersonlab.aoslo.motion.*;
 
             obj = DeviceTypes.getDeviceType(serialNumber);
             controller = obj.createController(serialNumber);

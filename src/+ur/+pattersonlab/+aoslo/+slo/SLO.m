@@ -36,8 +36,8 @@ classdef SLO < dynamicprops
     methods
         function obj = SLO()
             obj.Channels = [...
-                ur.pattersonlab.aoslo.slo.SloChannel(),...
-                ur.pattersonlab.aoslo.slo.SloChannel()];
+                ur.pattersonlab.aoslo.slo.SLOChannel(),...
+                ur.pattersonlab.aoslo.slo.SLOChannel()];
 
             % Try to connect and warn if unsuccessful
             try
