@@ -1,4 +1,4 @@
-function [f,controller] = adjustKCubeActuatorUI(serialNumber, stageName)
+function [f,controller] = adjustKCubeActuatorUI(deviceManager, serialNumber, stageName)
 
     import System.Windows.Forms.*
     import Thorlabs.MotionControl.DeviceManagerCLI.*
@@ -8,7 +8,9 @@ function [f,controller] = adjustKCubeActuatorUI(serialNumber, stageName)
     import Thorlabs.MotionControl.KCube.DCServoUI.*
     import Thorlabs.MotionControl.Controls.*
 
-    DeviceManagerCLI.BuildDeviceList();
+    if isempty(deviceManager)
+        DeviceManagerCLI.BuildDeviceList();
+    end
     controller = KCubeDCServoControl();
     controller.LargeView = true;
     controller.Dock = DockStyle.Fill;

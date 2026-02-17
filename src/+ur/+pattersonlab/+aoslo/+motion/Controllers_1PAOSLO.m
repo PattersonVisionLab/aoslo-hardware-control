@@ -6,13 +6,13 @@ classdef Controllers_1PAOSLO < double
         TOPTICA     (83849957) % MTS25
         REFLECTANCE (27006819) % MTS50
         
-        REF_X       (83857268) % Z912B
-        REF_Y       (83855258) % Z912B
-        REF_Z       (26250117)
+        REF_X       (83857268) % Z825
+        REF_Y       (83855258) % Z825
+        REF_Z       (26250117) % HS ZST225(B)
 
-        VIS_X       (83848285) % Z912B
-        VIS_Y       (83848287) % Z912B
-        VIS_Z       (83848308) % Z912B
+        VIS_X       (83848285) % Z825
+        VIS_Y       (83848287) % Z825
+        VIS_Z       (83848308) % Z825
 
         FIBER_X     (26005133) % Z912B
         FIBER_Y     (26004981) % Z912B
