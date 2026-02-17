@@ -30,12 +30,17 @@ classdef SLOChannel < ur.cvs.SLOChannel
     end
 
     methods
+        function im = getTrimmedImage(obj)
+            im = ur.pattersonlab.aoslo.slo.prepSloImage(obj.Image);
+            im = ur.pattersonlab.aoslo.slo.trimSloImage(im, 4);
+        end
+
         function [whens, meanPixels, stDevs] = getFrameValues(obj, N)
 
             whens = strings(N, 1);
             meanPixels = zeros(N,1);
             stDevs = zeros(N,1);
-            tic
+            %tic
             for i = 1:N
                 out = obj.getCurrentStats();
                 whens(i) = string(out{1});
@@ -45,7 +50,7 @@ classdef SLOChannel < ur.cvs.SLOChannel
                     pause(0.01);
                 end
             end
-            toc
+            %toc
         end
 
         function img = getSummaryImage(obj, nFrames, metric)

@@ -38,9 +38,9 @@ classdef OptimizationRoutine < handle
             arguments
                 form
                 slo
-                targets {mustBeMember(targets, ["RefXY", "RefZ", "RefXYZ", "VisXY", "VisZ"])}
-                opts.SearchWindow = 0.01
-                opts.MaxIterations = 200
+                targets {mustBeMember(targets, ["RefXY", "RefX", "RefZ", "VisYZ", "RefXYZ", "VisXY", "VisZ"])}
+                opts.SearchWindow = 0.05
+                opts.MaxIterations = 100
             end
 
             obj.Form = form;
@@ -60,15 +60,22 @@ classdef OptimizationRoutine < handle
                     obj.TargetDevices = obj.Form.Devices(1:3);
                 case "RefXY"
                     obj.TargetDevices = obj.Form.Devices(1:2);
+                case "RefX"
+                    obj.TargetDevices = obj.Form.Devices(1);
                 case "RefZ"
                     obj.TargetDevices = obj.Form.Devices(3);
                 case "VisXY"
                     obj.TargetDevices = obj.Form.Devices(4:5);
                 case "VisZ" 
                     obj.TargetDevices = obj.Form.Devices(6);
+                case "VisYZ"
+                    obj.TargetDevices = obj.Form.Devices(5:6);
             end
             if iscell(obj.TargetDevices)
                 obj.TargetDevices = horzcat(obj.TargetDevices{:})';
+            end
+            if numel(obj.TargetDevices) > 1 && isscalar(obj.searchWindow)
+                obj.searchWindow = [obj.searchWindow, obj.searchWindow];
             end
             obj.logStartPoint();
         end
@@ -113,6 +120,55 @@ classdef OptimizationRoutine < handle
     end
 
     methods
+        function peakOptimization(obj, searchRange, stepSize)
+            obj.prepOptimization();
+            startPosition = obj.getCurrentPosition();
+            startPixValue = obj.getMeanPixelValue();
+            disp([startPosition, startPixValue]);
+
+
+            forwardPositions = startPosition + (-searchRange/2:stepSize:searchRange/2);
+            backPositions = fliplr(forwardPositions);
+            allPositions = [forwardPositions, backPositions];
+            totalNumPositions = numel(forwardPositions) * 2;
+            idx = randperm(totalNumPositions);
+            allPositions = allPositions(idx);
+            cprintf('blue', 'Testing %u positions\n', numel(allPositions));
+
+
+
+            ax = axes('Parent', figure()); hold on;
+            stem(startPosition, startPixValue, 'filled', ...
+                'Color', 'k', 'LineStyle', '-.');
+
+            forwardRun = zeros(size(forwardPositions));
+            backRun = zeros(size(backPositions));
+
+            h1 = plot(allPositions, zeros(size(allPositions)), '.', 'Marker', '.',...
+                'Color', 'b', 'LineStyle', 'none', 'MarkerSize', 10);
+
+            for i = 1:totalNumPositions
+                pos = allPositions(i);
+
+                % Move detector to new position
+                obj.movePosition(pos);
+    
+                pixelValue = obj.getMeanPixelValue();
+    
+                % Track history
+                obj.evalCount = obj.evalCount + 1;
+                obj.callHistory = [obj.callHistory; obj.evalCount, obj.getCurrentPosition()', pixelValue];
+    
+                % Catch zeroed values and stop from continuing
+                if obj.evalCount > 5 && sum(obj.callHistory(end-4:end, end)) == 0
+                        obj.haltOptimization();
+                end
+                
+                h1.YData = forwardRun;
+
+            end
+        end
+
         function [optimalPosition, fVal, exitFlag, output] = optimize1D(obj)
             [startPoint, LB, UB] = obj.prepOptimization();
 
@@ -132,7 +188,7 @@ classdef OptimizationRoutine < handle
             opts = optimset("Display", "iter",...
                 "MaxIter", obj.maxIterations,...
                 'MaxFunEvals', obj.maxIterations,...
-                'TolX', 0.001, 'TolFun', 0.01,...
+                'TolX', 0.001, 'TolFun', 0.001,...
                 "PlotFcn", {@optimplotfval, @plotFcn});
 
             [optimalPosition, fVal, exitFlag, output] = fminsearchbnd(...
@@ -148,21 +204,19 @@ classdef OptimizationRoutine < handle
                 switch state
                     case 'init'
                         hold on;
-                        axis equal
-                        colormap('jet'); colorbar()
+                        %axis equal
+                        colormap(flare(100)); colorbar()
                         rectangle('Position',[startPoint'-obj.searchWindow/2, ...
-                                                obj.searchWindow,obj.searchWindow],...
+                                                obj.searchWindow(1),obj.searchWindow(2)],...
                                     'LineStyle', '--');
-                        plot(startPoint(1), startPoint(2), 'xk', 'LineWidth', 1, 'MarkerSize', 10);
+                        plot(startPoint(1), startPoint(2), 'ok', 'LineWidth', 1, 'MarkerSize', 10);
                         axis tight
                     case 'iter'
                         scatter( ...
                             obj.callHistory(end,end-2), obj.callHistory(end,end-1), ...
-                            70, obj.callHistory(end,end),'.');
+                            80, obj.callHistory(end,end), '.');
                     case 'done'
                         title(sprintf('Position: %.4f %.4f', obj.bestPosition));
-                        %c = clim();
-                        %clim([0 c(2)]);
                 end
             end
         end
@@ -193,8 +247,8 @@ classdef OptimizationRoutine < handle
 
             % Set the starting point and bounds
             startPoint = obj.getCurrentPosition(); % Initialize starting point
-            LB = startPoint - obj.searchWindow/2;
-            UB = startPoint + obj.searchWindow/2;
+            LB = startPoint - obj.searchWindow'/2;
+            UB = startPoint + obj.searchWindow'/2;
         end
 
         function haltOptimization(obj)
@@ -212,9 +266,9 @@ classdef OptimizationRoutine < handle
             scatter(obj.callHistory(:,2), obj.callHistory(:,3), [], obj.callHistory(:,4));
             plot(obj.startingPosition(1), obj.startingPosition(2), 'xb');
             plot(obj.bestPosition(1), obj.bestPosition(2), 'xk');
-            rectangle('Position', [obj.startingPosition(1)-obj.searchWindow, ...
-                obj.startingPosition(2)-obj.searchWindow, ...
-                obj.searchWindow, obj.searchWindow]);
+            rectangle('Position', [obj.startingPosition(1)-obj.searchWindow(1), ...
+                obj.startingPosition(2)-obj.searchWindow(2), ...
+                obj.searchWindow(2), obj.searchWindow(2)]);
         end
     end
 end

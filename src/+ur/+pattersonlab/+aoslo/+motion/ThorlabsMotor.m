@@ -43,7 +43,15 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
     methods
         function obj = ThorlabsMotor(device)
             obj.DEVICE = device;
-            obj.serialNumber = string(obj.DEVICE.SerialNo);
+            try
+                obj.serialNumber = string(obj.DEVICE.SerialNo);
+            catch ME
+                if strcmp(ME.identifier, "MATLAB:NET:INVALIDMEMBER")
+                    obj.serialNumber = string(obj.DEVICE.SerialNumber);
+                else
+                    rethrow(ME);
+                end
+            end
 
             % Grab some useful metadata
             deviceInfo = obj.DEVICE.GetDeviceInfo();

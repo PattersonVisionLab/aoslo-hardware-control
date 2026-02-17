@@ -40,6 +40,7 @@ classdef ThorlabsMotorManager < handle
 
             cprintf('blue', 'Identified %u devices: %s',...
                 obj.numDevices, strjoin(serialNumbers, ", "));
+            fprintf('\n');
 
             obj.serialNumbers = serialNumbers;
             obj.numDevices = numDevices;

@@ -33,6 +33,9 @@ classdef DeviceTypes
             import System.Drawing.*
 
             serialNumber = convertStringsToChars(serialNumber);
+            % Check for non-default stages
+            controllerType = ur.pattersonlab.aoslo.motion.Controllers_1PAOSLO(str2double(serialNumber));
+            stageName = controllerType.getCustomStageName();
 
             import Thorlabs.MotionControl.Controls.*
             import Thorlabs.MotionControl.DeviceManagerCLI.*
@@ -50,6 +53,7 @@ classdef DeviceTypes
                     device = createKDC201();
             end
 
+            % Create the device controller
             device.LargeView = true;
             device.Dock = DockStyle.Fill;
             device.SerialNumber = serialNumber;
@@ -58,6 +62,14 @@ classdef DeviceTypes
             catch ME
                 cprintf('red', 'Error creating %s %s\n', char(obj), serialNumber);
                 throwWarning(ME);
+            end
+
+            % Adjust stage if necessary
+            if ~isempty(stageName)
+                motorSettings = device.Device.LoadMotorConfiguration(serialNumber);
+                motorSettings.DeviceSettingsName = System.String(stageName);
+                motorSettings.UpdateCurrentConfiguration();
+                device.Device.SetSettings(motorDeviceSettings, true, false);
             end
 
             function controller = createTDC001()
@@ -102,7 +114,15 @@ classdef DeviceTypes
         function device = getDevice(deviceNET)
             import ur.pattersonlab.aoslo.motion.*;
 
-            deviceType = DeviceTypes.getDeviceType(char(deviceNET.SerialNo));
+            try
+                deviceType = DeviceTypes.getDeviceType(char(deviceNET.SerialNo));
+            catch ME
+                if strcmp(ME.identifier, 'MATLAB:NET:INVALIDMEMBER')
+                    deviceType = DeviceTypes.getDeviceType(char(deviceNET.SerialNumber));
+                else
+                    rethrow(ME);
+                end
+            end
 
             switch deviceType
                 case DeviceTypes.KDC101

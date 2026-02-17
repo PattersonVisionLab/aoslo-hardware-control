@@ -21,7 +21,7 @@ function DEVICE = singleKCubeConnect(serialNumber, stageName, kinesisPath)
 
         % Running this because Thorlabs Github docs included it, 
         % but not sure if it's necessary...
-        motorSettings = DDEVICE.LoadMotorConfiguration(serialNumber);
+        motorSettings = DEVICE.LoadMotorConfiguration(serialNumber);
         motorSettings.DeviceSettingsName = stageName; % Already set?
         motorSettings.UpdateCurrentConfiguration(); % Returns false?
         motorDeviceSettings = DEVICE.MotorDeviceSettings;

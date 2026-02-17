@@ -18,6 +18,7 @@ classdef KinesisForm < handle
     properties (Hidden, Constant)
         REF_XYZ = ["83857268", "83855258", "26250117"]
         VIS_XYZ = ["83848285", "83848287", "83848308"]
+        SOURCES = ["27006819", "83850011", "83849957"]
     end
 
     methods
@@ -108,11 +109,11 @@ classdef KinesisForm < handle
 
             fprintf('Adding controls... ');
             for i = 1:numel(obj.REF_XYZ)
-                refController = util.DeviceTypes.getController(obj.REF_XYZ(i));
+                refController = DeviceTypes.getController(obj.REF_XYZ(i));
                 obj.Controllers{i} = refController;
                 obj.Layout.Controls.Add(refController, 1, i);
 
-                visController = util.DeviceTypes.getController(obj.VIS_XYZ(i));
+                visController = DeviceTypes.getController(obj.VIS_XYZ(i));
                 obj.Controllers{i+3} = visController;
                 obj.Layout.Controls.Add(visController, 2, i);
 
