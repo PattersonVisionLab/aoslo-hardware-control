@@ -1,4 +1,4 @@
-function X = makeLEDStimulusFile(fName, X, ledObj)
+function X = makeLedStimulusFile(fName, X, ledObj)
     % MAKELEDSTIMULUSFILE
     %
     % Syntax:
