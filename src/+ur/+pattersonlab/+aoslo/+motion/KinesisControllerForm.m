@@ -22,7 +22,7 @@ classdef KinesisControllerForm < handle
     end
 
     properties (Hidden, Constant)
-        REF_XYZ = ["83857268", "83855258", "26250117"]
+        REF_XYZ = ["83857268", "83855258", "27270129"]
         VIS_XYZ = ["83848285", "83848287", "83848308"]
         SOURCES = ["27006819", "83850011", "83849957"]
         STEREOTAX = ["27007514", "27007530", "27007586"]

@@ -8,7 +8,7 @@ classdef Controllers_1PAOSLO < double
         
         REF_X       (83857268) % Z825
         REF_Y       (83855258) % Z825
-        REF_Z       (26250117) % HS ZST225(B)
+        REF_Z       (27270129) % Z925B
 
         VIS_X       (83848285) % Z825
         VIS_Y       (83848287) % Z825
@@ -33,6 +33,8 @@ classdef Controllers_1PAOSLO < double
 
             switch obj
                 case Controllers_1PAOSLO.STAGE_X
+                    value = 'Z925B';
+                case Controllers_1PAOSLO.REF_Z
                     value = 'Z925B';
                 case Controllers_1PAOSLO.STAGE_PITCH
                     value = 'PY004Z8 Pitch';

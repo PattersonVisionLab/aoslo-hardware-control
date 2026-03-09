@@ -69,6 +69,7 @@ classdef DeviceTypes
                 motorSettings = device.Device.LoadMotorConfiguration(serialNumber);
                 motorSettings.DeviceSettingsName = System.String(stageName);
                 motorSettings.UpdateCurrentConfiguration();
+                motorDeviceSettings = device.Device.MotorDeviceSettings;
                 device.Device.SetSettings(motorDeviceSettings, true, false);
             end
 
