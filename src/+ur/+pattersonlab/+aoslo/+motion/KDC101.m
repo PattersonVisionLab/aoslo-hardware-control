@@ -4,6 +4,7 @@ classdef KDC101 < ur.pattersonlab.aoslo.motion.ThorlabsMotor
     methods
         function obj = KDC101(device)
             obj@ur.pattersonlab.aoslo.motion.ThorlabsMotor(device);
+            import ur.pattersonlab.aoslo.motion.*
             obj.DeviceType = DeviceTypes.KDC101;
         end
     end
