@@ -54,7 +54,7 @@ classdef PmtSourceStereotaxForm < ur.pattersonlab.aoslo.motion.KinesisController
                 obj.Controllers{i+6} = stereoController;
                 obj.Layout.Controls.Add(stereoController, 3, i);
 
-                sourceController = DeviceTypes.getController(obj.SOURCE(i));
+                sourceController = DeviceTypes.getController(obj.SOURCES(i));
                 obj.Controllers{i+9} = sourceController;
                 obj.Layout.Controls.Add(sourceController, 4, i);
 

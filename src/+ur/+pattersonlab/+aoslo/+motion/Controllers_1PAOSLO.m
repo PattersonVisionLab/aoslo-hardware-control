@@ -40,6 +40,8 @@ classdef Controllers_1PAOSLO < double
                     value = 'PY004Z8 Pitch';
                 case Controllers_1PAOSLO.STAGE_YAW
                     value = 'PY004Z8 Yaw';
+                case Controllers_1PAOSLO.MUSTANG
+                    value = 'MTS25-Z8';
                 otherwise
                     value = [];
             end
