@@ -1,4 +1,4 @@
-classdef PmtSourceSteretaxForm < ur.pattersonlab.aoslo.motion.KinesisControllerForm
+classdef PmtSourceStereotaxForm < ur.pattersonlab.aoslo.motion.KinesisControllerForm
 
     properties
         formSize = [1322 700]
