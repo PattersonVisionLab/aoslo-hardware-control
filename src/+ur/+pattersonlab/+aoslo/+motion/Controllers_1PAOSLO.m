@@ -2,9 +2,9 @@ classdef Controllers_1PAOSLO < double
 % Serial numbers for 1P AOSLO controllers
 
     enumeration 
-        MUSTANG     (83850011) % MTS25
-        TOPTICA     (83849957) % MTS25
         REFLECTANCE (27006819) % MTS50
+        TOPTICA     (83849957) % MTS25
+        MUSTANG     (83850011) % MTS25
         
         REF_X       (83857268) % Z825
         REF_Y       (83855258) % Z825
