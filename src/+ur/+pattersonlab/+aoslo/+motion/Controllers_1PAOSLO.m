@@ -46,6 +46,19 @@ classdef Controllers_1PAOSLO < double
                     value = [];
             end
         end
+
+        function value = getDefaultStepSize(obj)
+            import ur.pattersonlab.aoslo.motion.Controllers_1PAOSLO
+
+            switch obj
+                case {Controllers_1PAOSLO.REF_X, Controllers_1PAOSLO.REF_Y}
+                    value = 0.002;
+                case Controllers_1PAOSLO.REF_Z
+                    value = 0.01;
+                otherwise
+                    value = [];
+            end
+        end
     end
 end
 
