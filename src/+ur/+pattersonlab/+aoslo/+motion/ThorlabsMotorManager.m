@@ -4,17 +4,21 @@ classdef ThorlabsMotorManager < handle
     properties (SetAccess = private)
         serialNumbers
         numDevices
+        SIMULATION
     end
 
     methods
-        function obj = ThorlabsMotorManager(dllPath)
+        function obj = ThorlabsMotorManager(simulationFlag, dllPath)
             arguments
+                simulationFlag (1,1)  logical  = false
                 dllPath  (1,1)  string  {isfolder} = "C:\Program Files\Thorlabs\Kinesis"
             end
 
             import ur.pattersonlab.aoslo.*;
 
             motion.util.loadDLLs(dllPath);
+
+            obj.SIMULATION = simulationFlag;
 
             % Build an internal list of all connected devices
             obj.buildDeviceList();
@@ -44,7 +48,6 @@ classdef ThorlabsMotorManager < handle
 
             obj.serialNumbers = serialNumbers;
             obj.numDevices = numDevices;
-
         end
 
         function [newSerialNumbers, newCount] = checkForConnectionChanges(obj)
@@ -68,13 +71,16 @@ classdef ThorlabsMotorManager < handle
         end
     end
 
-    methods (Static, Access = private)
-        function buildDeviceList()
+    methods (Access = private)
+        function buildDeviceList(obj)
             % Build an internal list of all connected devices
             % This should only be run once
 
             import Thorlabs.MotionControl.DeviceManagerCLI.*
-
+            
+            if obj.SIMULATION
+                SimulationManager.Instance.InitializeSimulations();
+            end
             DeviceManagerCLI.BuildDeviceList();
         end
     end
@@ -85,6 +91,4 @@ classdef ThorlabsMotorManager < handle
             tf = DeviceManagerCLI.IsDeviceConnected(deviceSerialNumber);
         end
     end
-
-
 end

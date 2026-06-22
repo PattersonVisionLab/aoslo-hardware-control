@@ -25,6 +25,8 @@ classdef Controllers_1PAOSLO < double
         CERNA_X      (2837365) % PLS
         CERNA_Y      (2837365) % PLS
         CERNA_Z      (283328)  % MPM
+
+        UNKNOWN      (0)
     end
 
     methods

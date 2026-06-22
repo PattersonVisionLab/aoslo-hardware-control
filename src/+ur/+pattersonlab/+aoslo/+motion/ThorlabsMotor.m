@@ -19,7 +19,7 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
     end
 
     properties (SetAccess = private)
-        serialNumber
+        serialNumber        (1,1)       string
         stageName           % stage name (e.g., 'Z912B')
         controllerName      % controller device name ('KDC101')
         aliasName           % user-defined name for controller
@@ -28,12 +28,15 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
     properties (Dependent)
         position
         jogStepSize
-        isValid
+        moveVelocity
+        moveAcceleration
+        maxPosition
 
-        isConnected
-        isEnabled
-        isHomed
-        isBusy
+        isValid             (1,1)       logical 
+        isConnected         (1,1)       logical
+        isEnabled           (1,1)       logical
+        isHomed             (1,1)       logical
+        isBusy              (1,1)       logical
     end
 
     properties (Hidden, Constant)
@@ -41,7 +44,7 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
     end
 
     methods
-        function obj = ThorlabsMotor(device)
+        function obj = ThorlabsMotor(device, stageName)
             obj.DEVICE = device;
             try
                 obj.serialNumber = string(obj.DEVICE.SerialNo);
@@ -57,7 +60,10 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
             deviceInfo = obj.DEVICE.GetDeviceInfo();
             obj.controllerName = string(deviceInfo.Name);
 
-            obj.stageName = string(obj.DEVICE.MotorConfiguration.DeviceSettingsName);
+            if nargin > 1 || ~isempty(stageName) 
+                obj.setStage(stageName);
+                obj.stageName = string(obj.DEVICE.MotorConfiguration.DeviceSettingsName);
+            end
             obj.aliasName = string(obj.DEVICE.MotorConfiguration.DeviceAlias);
         end
     end
@@ -138,16 +144,12 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
             end
         end
 
-        function setJogStepSize(obj, value)
-            % Thorlabs.MotionControl.GenericMotorCLI.ControlParameters.JogParameters
-            arguments
-                obj
-                value   (1,1)   double  {mustBeNonnegative}
-            end
-
-            jogParams = obj.DEVICE.getJogParams;
-            jogParams.StepSize = System.Double(value);
-            obj.DEVICE.SetJogParams(jogParams);
+        function setStage(obj, stageName)
+            motorSettings = obj.DEVICE.LoadMotorConfiguration(obj.serialNumber);
+            motorSettings.DeviceSettingsName = stageName;
+            motorSettings.UpdateCurrentConfiguration();
+            motorDeviceSettings = obj.DEVICE.MotorDeviceSettings;
+            obj.DEVICE.SetSettings(motorDeviceSettings, true, false);
         end
 
         function info = getDeviceAttributes(obj)
@@ -159,6 +161,30 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
             info.VelocityParams = obj.getVelocityParams();
             info.JogParams = obj.getJogParams();
             info.Backlash = System.Decimal.ToDouble(obj.DEVICE.Backlash);
+        end
+    end
+
+    methods
+        function setJogStepSize(obj, value)
+            % Thorlabs.MotionControl.GenericMotorCLI.ControlParameters.JogParameters
+            arguments
+                obj
+                value   (1,1)   double  {mustBeNonnegative}
+            end
+
+            jogParams = obj.DEVICE.GetJogParams();
+            jogParams.StepSize = value;
+            obj.DEVICE.SetJogParams(jogParams);
+        end
+
+        function success = setStepVelocity(obj, value)
+            velParams = obj.getVelocityParams();
+            if value >= velParams.MinVelocity && value <= velParams.MaxVelocity
+                obj.DEVICE.SetVelocityParams(value, velParams.Acceleration);
+                success = true;
+            else
+                success = false;
+            end
         end
     end
 
@@ -195,6 +221,43 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
         function value = get.jogStepSize(obj)
             value = decimal2double(obj.DEVICE.GetJogStepSize());
         end
+
+        function value = get.maxPosition(obj)
+            value = System.Decimal.ToDouble(obj.DEVICE.AdvancedMotorLimits.LengthMaximum);
+        end
+
+        function value = get.moveVelocity(obj)
+            value = obj.velocityParams.MaxVelocity;
+        end
+
+        function value = get.moveAcceleration(obj)
+            value = obj.velocityParams.Acceleration;
+        end
     end
 
+    methods (Access = protected)
+        function out = getVelocityParams(obj)
+            out = struct();
+            if ~obj.isConnected
+                error('Device is not connected.');
+            end
+            velocityParams = obj.DEVICE.GetVelocityParams();
+            out.Acceleration = System.Decimal.ToDouble(velocityParams.Acceleration);
+            out.MinVelocity = System.Decimal.ToDouble(velocityParams.MinVelocity);
+            out.MaxVelocity = System.Decimal.ToDouble(velocityParams.MaxVelocity);
+        end
+
+        function out = getJogParams(obj)
+            out = struct();
+            if ~obj.isValid
+                return
+            end
+            jogParams = obj.DEVICE.GetJogParams();
+            out.VelocityParams = struct();
+            out.VelocityParams.MinVelocity = System.Decimal.ToDouble(jogParams.VelocityParameters.MinVelocity);
+            out.VelocityParams.MaxVelocity = System.Decimal.ToDouble(jogParams.VelocityParameters.MaxVelocity);
+            out.VelocityParams.Acceleration = System.Decimal.ToDouble(jogParams.Acceleration);
+            out.StepSize = obj.jogStepSize;
+        end
+    end
 end

@@ -25,25 +25,5 @@ classdef KDC101 < ur.pattersonlab.aoslo.motion.ThorlabsMotor
             info.DeviceType = deviceInfo.DeviceType;
         end
 
-        function out = getVelocityParams(obj)
-            out = struct();
-            if ~obj.isConnected
-                error('Device is not connected.');
-            end
-            velocityParams = obj.DEVICE.GetVelocityParams();
-            out.Acceleration = System.Decimal.ToDouble(velocityParams.Acceleration);
-            out.MinVelocity = System.Decimal.ToDouble(velocityParams.MinVelocity);
-            out.MaxVelocity = System.Decimal.ToDouble(velocityParams.MaxVelocity);
-        end
-
-        function out = getJogParams(obj)
-            out = struct();
-            if ~obj.isValid
-                return
-            end
-            jogParams = obj.DEVICE.GetJogParams();
-            out.Acceleration = System.Decimal.ToDouble(jogParams.Acceleration);
-            out.StepSize = obj.jogStepSize;
-        end
     end
 end

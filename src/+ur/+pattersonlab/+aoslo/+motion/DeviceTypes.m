@@ -28,14 +28,16 @@ classdef DeviceTypes
             end
         end
 
-        function device = createController(obj, serialNumber)
+        function device = createController(obj, serialNumber, stageName)
             import System.Windows.Forms.*
             import System.Drawing.*
 
             serialNumber = convertStringsToChars(serialNumber);
             % Check for non-default stages
-            controllerType = ur.pattersonlab.aoslo.motion.Controllers_1PAOSLO(str2double(serialNumber));
-            stageName = controllerType.getCustomStageName();
+            if nargin < 3 
+                controllerType = ur.pattersonlab.aoslo.motion.Controllers_1PAOSLO(str2double(serialNumber));
+                stageName = controllerType.getCustomStageName();
+            end
 
             import Thorlabs.MotionControl.Controls.*
             import Thorlabs.MotionControl.DeviceManagerCLI.*
@@ -135,11 +137,11 @@ classdef DeviceTypes
             end
         end
 
-        function controller = getController(serialNumber)
+        function controller = getController(serialNumber, varargin)
             import ur.pattersonlab.aoslo.motion.*;
 
             obj = DeviceTypes.getDeviceType(serialNumber);
-            controller = obj.createController(serialNumber);
+            controller = obj.createController(serialNumber, varargin{:});
         end
     end
 end
