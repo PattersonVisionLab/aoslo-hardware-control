@@ -3,6 +3,7 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
     events
         Jogged
         Moved
+        Homed
         Connected
         Disconnected
         ChangedStepSize
@@ -207,7 +208,7 @@ classdef (Abstract) ThorlabsMotor < handle & matlab.mixin.Heterogeneous
         end
 
         function tf = get.isHomed(obj)
-            tf = ~obj.DEVICE.Status.IsHomed;
+            tf = obj.DEVICE.Status.IsHomed;
         end
 
         function tf = get.isBusy(obj)
